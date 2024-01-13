@@ -2,11 +2,13 @@
 import { store } from "../data/store";
 import QuestsComp from "../components/QuestsComp.vue";
 import AnswersComp from "../components/AnswersComp.vue";
+import ResultComponent from "./ResultComponent.vue";
 export default {
   name: "ContainerGameComp",
   components: {
     QuestsComp,
     AnswersComp,
+    ResultComponent,
   },
   data() {
     return {
@@ -40,6 +42,19 @@ export default {
       };
       this.userAnswers.push(userAnswerObj);
     },
+    getCorrectAnswers() {
+      const correctAnswers = this.userAnswers.filter((answ) => {
+        return answ.isTrue === true;
+      });
+      console.log(correctAnswers);
+      return correctAnswers.length;
+    },
+    resetGame() {
+      store.counterIndexes = 0;
+      this.uniqueQuestsIndexes = [];
+      this.userAnswers = [];
+      this.getUniqueQuest();
+    },
   },
   created() {
     this.getUniqueQuest();
@@ -48,7 +63,10 @@ export default {
 </script>
 
 <template>
-  <div class="quest-answers-cont">
+  <div
+    v-if="userAnswers.length < store.dataQuests.length"
+    class="quest-answers-cont"
+  >
     <div class="quests-container">
       <QuestsComp :question="sendQuestAnswers('question')" />
     </div>
@@ -60,6 +78,11 @@ export default {
         @answerQuestion="getUserAnswers"
       />
     </div>
+  </div>
+  <div v-else class="output">
+    <button @click="resetGame">PLAY AGAIN</button>
+    <h4>{{ getCorrectAnswers() + "/" + store.dataQuests.length }}</h4>
+    <ResultComponent v-for="item in userAnswers" :resultData="item" />
   </div>
 </template>
 
@@ -74,6 +97,31 @@ export default {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+  }
+}
+.output {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  button {
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 30px;
+    color: greenyellow;
+    border: 1px solid greenyellow;
+    background-color: transparent;
+    margin: 15px 0px;
+    box-shadow: 0px 0px 10px greenyellow;
+    text-shadow: 0px 0px 10px greenyellow;
+
+    &:hover {
+      box-shadow: 0px 0px 15px greenyellow;
+    }
+
+    &:active {
+      box-shadow: 0px 0px 35px greenyellow;
+    }
   }
 }
 </style>
